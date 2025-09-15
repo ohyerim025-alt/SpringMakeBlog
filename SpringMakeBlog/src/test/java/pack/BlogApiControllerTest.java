@@ -1,7 +1,9 @@
 package pack;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
@@ -74,8 +76,30 @@ public class BlogApiControllerTest {
 		assertThat(articles.size()).isEqualTo(1);		// 크기가 1인지 검증
 		assertThat(articles.get(0).getTitle()).isEqualTo(title);
 		assertThat(articles.get(0).getContent()).isEqualTo(content);
-			
 	}
 	
+	@DisplayName("findAllArticles: 블로그 글 목록 조회에 성공한다.")
+	@Test
+	public void findAllArticles() throws Exception{
+		// given: 블로그 글을 저장
+		final String url = "/api/articles";
+		final String title = "title";
+		final String content = "content";
+		
+		blogRepository.save(Article.builder()
+			.title(title)
+			.content(content)
+			.build());
+		
+		// when: 목록 조회 api를 호출
+		final ResultActions resultActions = mockMvc.perform(get(url)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		// then: 응답 코드가 200 ok이고, 반환받은 값 중에 0 번째 요소의 content와 title이 저장된 값이 같은지 확인
+		resultActions
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$[0].content").value(content))
+			.andExpect(jsonPath("$[0].title").value(title));
 	
+	}
 }
