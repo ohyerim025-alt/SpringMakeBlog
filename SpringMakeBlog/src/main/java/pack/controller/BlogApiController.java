@@ -4,8 +4,11 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import pack.domain.Article;
 import pack.dto.AddArticleRequest;
 import pack.dto.ArticleResponse;
+import pack.dto.UpdateArticleRequest;
 import pack.service.BlogService;
 
 @RequiredArgsConstructor
@@ -42,4 +46,43 @@ public class BlogApiController {
 		return ResponseEntity.ok()
 				.body(articles);
 	}
+	
+	// GET 요청이 오면 블로그 글을 조회
+	@GetMapping("/api/articles/{id}")
+	// URL 경로에서 값 추출
+	public ResponseEntity<ArticleResponse> findArticle(@PathVariable long id){
+		Article article = blogService.findById(id);
+		
+		return ResponseEntity.ok()
+				.body(new ArticleResponse(article));
+	}
+	
+	// Delete 요청이 오면 글 삭제
+	@DeleteMapping("/api/articles/{id}")
+	public ResponseEntity<Void> deleteArticle(@PathVariable long id){
+		blogService.delete(id);
+
+		return ResponseEntity.ok()
+				.build();
+	}
+	
+	// Put 요청이 오면 글을 수정
+	@PutMapping("/api/articles/{id}")
+	public ResponseEntity<Article> updateArticle(@PathVariable long id, @RequestBody UpdateArticleRequest request){
+		Article updatedArticle = blogService.update(id, request);
+		
+		return ResponseEntity.ok()
+				.body(updatedArticle);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
